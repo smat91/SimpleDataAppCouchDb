@@ -19,7 +19,7 @@ Fachdokuments (d.h. Inhaltsverzeichnis, Abbildungsverzeichnis, korrektes Zitiere
 Literaturverzeichnis, Glossar) – Nutzinhalt = ohne Titelblatt bzw. Verzeichnisse
     - Kurzpräsentation (10-15min)
         - <b>inkl. Demo des Stores mit Anbindung an eine C#-Applikation
-(via EF oder native) , evtl. mit Hilfe von [Docker](https://github.com/smat91/CouchDb/blob/main/DOCKER.md)</b>
+(via EF oder native) , evtl. mit Hilfe von [Docker](https://github.com/smat91/SimpleDataAppCouchDb/blob/master/DOCKER.md)</b>
 <br><br>
 - <b>Kapitel für jedes Produkt:</b>
     - Generelle Einführung/Übersicht
