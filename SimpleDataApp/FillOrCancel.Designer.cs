@@ -29,9 +29,6 @@ namespace SimpleDataApp
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtOrderID = new System.Windows.Forms.TextBox();
-            this.btnFindByOrderID = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.dtpFillDate = new System.Windows.Forms.DateTimePicker();
             this.dgvCustomerOrders = new System.Windows.Forms.DataGridView();
@@ -41,36 +38,10 @@ namespace SimpleDataApp
             ((System.ComponentModel.ISupportInitialize)(this.dgvCustomerOrders)).BeginInit();
             this.SuspendLayout();
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(50, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Order ID:";
-            // 
-            // txtOrderID
-            // 
-            this.txtOrderID.Location = new System.Drawing.Point(69, 10);
-            this.txtOrderID.Name = "txtOrderID";
-            this.txtOrderID.Size = new System.Drawing.Size(162, 20);
-            this.txtOrderID.TabIndex = 1;
-            // 
-            // btnFindByOrderID
-            // 
-            this.btnFindByOrderID.Location = new System.Drawing.Point(238, 8);
-            this.btnFindByOrderID.Name = "btnFindByOrderID";
-            this.btnFindByOrderID.Size = new System.Drawing.Size(158, 23);
-            this.btnFindByOrderID.TabIndex = 2;
-            this.btnFindByOrderID.Text = "Find Order";
-            this.btnFindByOrderID.UseVisualStyleBackColor = true;
-            this.btnFindByOrderID.Click += new System.EventHandler(this.btnFindByOrderID_Click);
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 61);
+            this.label2.Location = new System.Drawing.Point(13, 11);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(168, 13);
             this.label2.TabIndex = 3;
@@ -79,20 +50,25 @@ namespace SimpleDataApp
             // dtpFillDate
             // 
             this.dtpFillDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpFillDate.Location = new System.Drawing.Point(191, 55);
+            this.dtpFillDate.Location = new System.Drawing.Point(191, 5);
             this.dtpFillDate.Name = "dtpFillDate";
             this.dtpFillDate.Size = new System.Drawing.Size(205, 20);
             this.dtpFillDate.TabIndex = 4;
             // 
             // dgvCustomerOrders
             // 
+            this.dgvCustomerOrders.AllowUserToAddRows = false;
+            this.dgvCustomerOrders.AllowUserToDeleteRows = false;
             this.dgvCustomerOrders.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvCustomerOrders.Location = new System.Drawing.Point(16, 89);
+            this.dgvCustomerOrders.Location = new System.Drawing.Point(16, 31);
+            this.dgvCustomerOrders.MultiSelect = false;
             this.dgvCustomerOrders.Name = "dgvCustomerOrders";
             this.dgvCustomerOrders.ReadOnly = true;
             this.dgvCustomerOrders.RowHeadersVisible = false;
-            this.dgvCustomerOrders.Size = new System.Drawing.Size(380, 150);
-            this.dgvCustomerOrders.TabIndex = 5;
+            this.dgvCustomerOrders.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.dgvCustomerOrders.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvCustomerOrders.Size = new System.Drawing.Size(520, 208);
+            this.dgvCustomerOrders.TabIndex = 2;
             // 
             // btnCancelOrder
             // 
@@ -128,16 +104,13 @@ namespace SimpleDataApp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(414, 289);
+            this.ClientSize = new System.Drawing.Size(551, 289);
             this.Controls.Add(this.btnFinishUpdates);
             this.Controls.Add(this.btnFillOrder);
             this.Controls.Add(this.btnCancelOrder);
             this.Controls.Add(this.dgvCustomerOrders);
             this.Controls.Add(this.dtpFillDate);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.btnFindByOrderID);
-            this.Controls.Add(this.txtOrderID);
-            this.Controls.Add(this.label1);
             this.Name = "FillOrCancel";
             this.Text = "FillOrCancel";
             ((System.ComponentModel.ISupportInitialize)(this.dgvCustomerOrders)).EndInit();
@@ -147,10 +120,6 @@ namespace SimpleDataApp
         }
 
         #endregion
-
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtOrderID;
-        private System.Windows.Forms.Button btnFindByOrderID;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DateTimePicker dtpFillDate;
         private System.Windows.Forms.DataGridView dgvCustomerOrders;

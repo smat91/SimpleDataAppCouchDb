@@ -9,6 +9,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MyCouch;
+using MyCouch.Requests;
+using MyCouch.Responses;
+using SimpleDataApp.Entities;
 
 namespace SimpleDataApp
 {
@@ -17,174 +21,115 @@ namespace SimpleDataApp
         public FillOrCancel()
         {
             InitializeComponent();
-        }
-
-        // Storage for the order ID value.
-        private int parsedOrderID;
-
-        /// <summary>
-        /// Verifies that an order ID is present and contains valid characters.
-        /// </summary>
-        private bool IsOrderIDValid()
-        {
-            // Check for input in the Order ID text box.
-            if (txtOrderID.Text == "")
-            {
-                MessageBox.Show("Please specify the Order ID.");
-                return false;
-            }
-
-            // Check for characters other than integers.
-            else if (Regex.IsMatch(txtOrderID.Text, @"^\D*$"))
-            {
-                // Show message and clear input.
-                MessageBox.Show("Customer ID must contain only numbers.");
-                txtOrderID.Clear();
-                return false;
-            }
-            else
-            {
-                // Convert the text in the text box to an integer to send to the database.
-                parsedOrderID = Int32.Parse(txtOrderID.Text);
-                return true;
-            }
+            ShowOrders();
         }
 
         /// <summary>
-        /// Executes a t-SQL SELECT statement to obtain order data for a specified
-        /// order ID, then displays it in the DataGridView on the form.
+        /// Show all orders
         /// </summary>
-        private void btnFindByOrderID_Click(object sender, EventArgs e)
+        private async void ShowOrders()
         {
-            if (IsOrderIDValid())
+            using (var client = new MyCouchClient("http://admin:admin@localhost:5984/", "testdb"))
             {
-                using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.connString))
+                var query = new QueryViewRequest("orders", "orders_with_customers").Configure(q => q
+                    .Reduce(false));
+                ViewQueryResponse<Entities.Order> result = await client.Views.QueryAsync<Entities.Order>(query);
+                
+                List<Entities.Order> orderList = new List<Entities.Order>();
+                Dictionary<string,string> customerDict = new Dictionary<string, string>();
+                HashSet<string> customerSet = new HashSet<string>();
+
+                if (!result.IsEmpty && result.IsSuccess)
                 {
-                    // Define a t-SQL query string that has a parameter for orderID.
-                    const string sql = "SELECT * FROM Sales.Orders WHERE orderID = @orderID";
-
-                    // Create a SqlCommand object.
-                    using (SqlCommand sqlCommand = new SqlCommand(sql, connection))
+                    foreach (var row in result.Rows)
                     {
-                        // Define the @orderID parameter and set its value.
-                        sqlCommand.Parameters.Add(new SqlParameter("@orderID", SqlDbType.Int));
-                        sqlCommand.Parameters["@orderID"].Value = parsedOrderID;
+                        Order order = row.Value;
+                        orderList.Add(order);
+                        customerSet.Add(order.Customer);
+                    }
+                }
 
-                        try
+                foreach (var customer in customerSet)
+                {
+                    var getEntityResponse = client.Entities.GetAsync<Customer>(customer);
+                    var answer = getEntityResponse.Result.Content;
+                    customerDict.Add(customer, answer.Name);
+                }
+
+                // Create a data table to hold the retrieved data.
+                DataTable dataTable = new DataTable();
+                dataTable.Columns.Add("id", typeof(string));
+                dataTable.Columns.Add("Customer", typeof(String));
+                dataTable.Columns.Add("State", typeof(string));
+                dataTable.Columns.Add("Date", typeof(DateTime));
+                dataTable.Columns.Add("Amount", typeof(int));
+
+                foreach (var order in orderList)
+                {
+                    DataRow newRow = dataTable.Rows.Add();
+
+                    newRow["id"] = order._id;
+                    newRow["Customer"] = customerDict[order.Customer];
+                    newRow["State"] = order.OrderState;
+                    newRow["Date"] = order.OrderDate;
+                    newRow["Amount"] = order.OrderAmount;
+                }
+
+                dgvCustomerOrders.DataSource = dataTable;
+                dgvCustomerOrders.AutoResizeColumns();
+            }
+        }
+
+        /// <summary>
+        /// Cancels an order
+        /// </summary>
+        private async void btnCancelOrder_Click(object sender, EventArgs e)
+        {
+            if (dgvCustomerOrders.SelectedCells.Count > 0)
+            {
+                var selectedOrderId = dgvCustomerOrders.SelectedCells[0].Value.ToString();
+
+                using (var client = new MyCouchClient("http://admin:admin@localhost:5984/", "testdb"))
+                {
+                    var getEntityResponse = await client.Entities.GetAsync<Order>(selectedOrderId);
+
+                    if (getEntityResponse.IsSuccess)
+                    {
+                        var answer = getEntityResponse.Content;
+                        var getDeleteResponse = await client.Documents.DeleteAsync(answer._id, answer._rev);
+
+                        ShowOrders();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fills an order 
+        /// </summary>
+        private async void btnFillOrder_Click(object sender, EventArgs e)
+        {
+            if (dgvCustomerOrders.SelectedCells.Count > 0)
+            {
+                var selectedOrderId = dgvCustomerOrders.SelectedCells[0].Value.ToString();
+
+                using (var client = new MyCouchClient("http://admin:admin@localhost:5984/", "testdb"))
+                {
+                    var getEntityResponse = await client.Entities.GetAsync<Order>(selectedOrderId);
+
+                    if (getEntityResponse.IsSuccess)
+                    {
+                        var answer = getEntityResponse.Content;
+
+                        if (answer.OrderState == "O")
                         {
-                            connection.Open();
+                            answer.OrderState = "X";
 
-                            // Run the query by calling ExecuteReader().
-                            using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
+                            var response = await client.Entities.PutAsync(answer);
+                            if (response.IsSuccess)
                             {
-                                // Create a data table to hold the retrieved data.
-                                DataTable dataTable = new DataTable();
-
-                                // Load the data from SqlDataReader into the data table.
-                                dataTable.Load(dataReader);
-
-                                // Display the data from the data table in the data grid view.
-                                this.dgvCustomerOrders.DataSource = dataTable;
-
-                                // Close the SqlDataReader.
-                                dataReader.Close();
+                                ShowOrders();
                             }
-                        }
-                        catch
-                        {
-                            MessageBox.Show("The requested order could not be loaded into the form.");
-                        }
-                        finally
-                        {
-                            // Close the connection.
-                            connection.Close();
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Cancels an order by calling the Sales.uspCancelOrder
-        /// stored procedure on the database.
-        /// </summary>
-        private void btnCancelOrder_Click(object sender, EventArgs e)
-        {
-            if (IsOrderIDValid())
-            {
-                // Create the connection.
-                using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.connString))
-                {
-                    // Create the SqlCommand object and identify it as a stored procedure.
-                    using (SqlCommand sqlCommand = new SqlCommand("Sales.uspCancelOrder", connection))
-                    {
-                        sqlCommand.CommandType = CommandType.StoredProcedure;
-
-                        // Add the order ID input parameter for the stored procedure.
-                        sqlCommand.Parameters.Add(new SqlParameter("@orderID", SqlDbType.Int));
-                        sqlCommand.Parameters["@orderID"].Value = parsedOrderID;
-
-                        try
-                        {
-                            // Open the connection.
-                            connection.Open();
-
-                            // Run the command to execute the stored procedure.
-                            sqlCommand.ExecuteNonQuery();
-                        }
-                        catch
-                        {
-                            MessageBox.Show("The cancel operation was not completed.");
-                        }
-                        finally
-                        {
-                            // Close connection.
-                            connection.Close();
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Fills an order by calling the Sales.uspFillOrder stored
-        /// procedure on the database.
-        /// </summary>
-        private void btnFillOrder_Click(object sender, EventArgs e)
-        {
-            if (IsOrderIDValid())
-            {
-                // Create the connection.
-                using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.connString))
-                {
-                    // Create command and identify it as a stored procedure.
-                    using (SqlCommand sqlCommand = new SqlCommand("Sales.uspFillOrder", connection))
-                    {
-                        sqlCommand.CommandType = CommandType.StoredProcedure;
-
-                        // Add the order ID input parameter for the stored procedure.
-                        sqlCommand.Parameters.Add(new SqlParameter("@orderID", SqlDbType.Int));
-                        sqlCommand.Parameters["@orderID"].Value = parsedOrderID;
-
-                        // Add the filled date input parameter for the stored procedure.
-                        sqlCommand.Parameters.Add(new SqlParameter("@FilledDate", SqlDbType.DateTime, 8));
-                        sqlCommand.Parameters["@FilledDate"].Value = dtpFillDate.Value;
-
-                        try
-                        {
-                            connection.Open();
-
-                            // Execute the stored procedure.
-                            sqlCommand.ExecuteNonQuery();
-                        }
-                        catch
-                        {
-                            MessageBox.Show("The fill operation was not completed.");
-                        }
-                        finally
-                        {
-                            // Close the connection.
-                            connection.Close();
                         }
                     }
                 }
