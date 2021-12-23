@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleDataApp.Views
+namespace SimpleDataAppDataLayer.Views
 {
-    public static class Views
+    public static class DbViews
     {
         public const string OrderList =
             @"{

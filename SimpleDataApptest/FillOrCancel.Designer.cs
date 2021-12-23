@@ -1,5 +1,5 @@
 ﻿
-namespace SimpleDataApp
+namespace SimpleDataAppUiLayer
 {
     partial class FillOrCancel
     {

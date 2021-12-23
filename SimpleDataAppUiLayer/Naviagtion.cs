@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SimpleDataApp
+namespace SimpleDataAppUiLayer
 {
     public partial class Naviagtion : Form
     {

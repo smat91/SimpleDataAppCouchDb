@@ -12,9 +12,8 @@ using System.Windows.Forms;
 using MyCouch;
 using MyCouch.Requests;
 using MyCouch.Responses;
-using SimpleDataApp.Entities;
 
-namespace SimpleDataApp
+namespace SimpleDataAppUiLayer
 {
     public partial class FillOrCancel : Form
     {

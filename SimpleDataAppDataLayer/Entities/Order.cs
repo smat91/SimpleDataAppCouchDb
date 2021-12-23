@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleDataApp.Entities
+namespace SimpleDataAppDataLayer.Entities
 {
-    class Order
+    public class Order
     {
         public string _id { get; set; }
         public string _rev { get; set; }

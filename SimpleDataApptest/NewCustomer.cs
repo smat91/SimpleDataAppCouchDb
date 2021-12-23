@@ -9,9 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MyCouch;
-using SimpleDataApp.Entities;
 
-namespace SimpleDataApp
+namespace SimpleDataAppUiLayer
 {
     public partial class NewCustomer : Form
     {
