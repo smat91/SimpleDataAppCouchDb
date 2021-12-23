@@ -8,8 +8,8 @@ namespace SimpleDataAppDataLayer.Entities
 {
     public class Order
     {
-        public string _id { get; set; }
-        public string _rev { get; set; }
+        public string _id { get; set; }     // document id for couch db
+        public string _rev { get; set; }    // document revision for couch db
 
         public string Customer { get; set; }
         public string OrderState { get; set; }

@@ -18,6 +18,7 @@ namespace SimpleDataAppDataLayer
             using (var client = new MyCouchClient("http://admin:admin@localhost:5984/", "testdb"))
             {
                 var getResponse = await client.Documents.GetAsync("_design/orders");
+                Console.WriteLine(getResponse);
                 if (getResponse.IsEmpty)
                 {
                     var putResponse = await client.Documents.PostAsync(DbViews.OrderList);
@@ -37,7 +38,6 @@ namespace SimpleDataAppDataLayer
                 };
 
                 var response = await client.Entities.PutAsync(customer);
-
                 Console.Write(response.ToStringDebugVersion());
 
                 return customer._id;
@@ -59,7 +59,6 @@ namespace SimpleDataAppDataLayer
                 };
 
                 var response = await client.Entities.PutAsync(order);
-
                 Console.Write(response.ToStringDebugVersion());
 
                 return order._id; 
@@ -72,13 +71,14 @@ namespace SimpleDataAppDataLayer
             {
                 var query = new QueryViewRequest("orders", "orders_with_customers").Configure(q => q
                     .Reduce(false));
-                ViewQueryResponse<Entities.Order> result = await client.Views.QueryAsync<Entities.Order>(query);
+                ViewQueryResponse<Entities.Order> response = await client.Views.QueryAsync<Entities.Order>(query);
+                Console.WriteLine(response);
 
                 List<Entities.Order> orderList = new List<Entities.Order>();
 
-                if (!result.IsEmpty && result.IsSuccess)
+                if (!response.IsEmpty && response.IsSuccess)
                 {
-                    foreach (var row in result.Rows)
+                    foreach (var row in response.Rows)
                     {
                         Order order = row.Value;
                         orderList.Add(order);
@@ -107,8 +107,9 @@ namespace SimpleDataAppDataLayer
             {
                 foreach (var customer in customerSet)
                 {
-                    var getEntityResponse = client.Entities.GetAsync<Customer>(customer);
-                    var answer = getEntityResponse.Result.Content;
+                    var response = client.Entities.GetAsync<Customer>(customer);
+                    Console.WriteLine(response);
+                    var answer = response.Result.Content;
                     customerDict.Add(customer, answer.Name);
                 }
 
@@ -121,11 +122,13 @@ namespace SimpleDataAppDataLayer
             using (var client = new MyCouchClient("http://admin:admin@localhost:5984/", "testdb"))
             {
                 var getEntityResponse = await client.Entities.GetAsync<Order>(orderId);
+                Console.WriteLine(getEntityResponse);
 
                 if (getEntityResponse.IsSuccess)
                 {
                     var answer = getEntityResponse.Content;
                     var getDeleteResponse = await client.Documents.DeleteAsync(answer._id, answer._rev);
+                    Console.WriteLine(getDeleteResponse);
 
                     return true;
                 }
@@ -139,6 +142,7 @@ namespace SimpleDataAppDataLayer
             using (var client = new MyCouchClient("http://admin:admin@localhost:5984/", "testdb"))
             {
                 var getEntityResponse = await client.Entities.GetAsync<Order>(orderId);
+                Console.WriteLine(getEntityResponse);
 
                 if (getEntityResponse.IsSuccess)
                 {
@@ -147,15 +151,13 @@ namespace SimpleDataAppDataLayer
                     if (answer.OrderState == "O")
                     {
                         answer.OrderState = "X";
-
                         var response = await client.Entities.PutAsync(answer);
+                        Console.WriteLine(response);
 
                         return response.IsSuccess;
                     }
-
                     return false;
                 }
-
                 return false;
             }
         }
