@@ -38,7 +38,7 @@ namespace SimpleDataAppDataLayer
                 };
 
                 var response = await client.Entities.PutAsync(customer);
-                Console.Write(response.ToStringDebugVersion());
+                Console.WriteLine(response.ToStringDebugVersion());
 
                 return customer._id;
             }
@@ -59,7 +59,7 @@ namespace SimpleDataAppDataLayer
                 };
 
                 var response = await client.Entities.PutAsync(order);
-                Console.Write(response.ToStringDebugVersion());
+                Console.WriteLine(response.ToStringDebugVersion());
 
                 return order._id; 
             }
@@ -72,7 +72,7 @@ namespace SimpleDataAppDataLayer
                 var query = new QueryViewRequest("orders", "orders_with_customers").Configure(q => q
                     .Reduce(false));
                 ViewQueryResponse<Entities.Order> response = await client.Views.QueryAsync<Entities.Order>(query);
-                Console.WriteLine(response);
+                Console.WriteLine(response.ToStringDebugVersion());
 
                 List<Entities.Order> orderList = new List<Entities.Order>();
 
@@ -107,9 +107,9 @@ namespace SimpleDataAppDataLayer
             {
                 foreach (var customer in customerSet)
                 {
-                    var response = client.Entities.GetAsync<Customer>(customer);
-                    Console.WriteLine(response);
-                    var answer = response.Result.Content;
+                    var response = await client.Entities.GetAsync<Customer>(customer);
+                    Console.WriteLine(response.ToStringDebugVersion());
+                    var answer = response.Content;
                     customerDict.Add(customer, answer.Name);
                 }
 
@@ -128,7 +128,7 @@ namespace SimpleDataAppDataLayer
                 {
                     var answer = getEntityResponse.Content;
                     var getDeleteResponse = await client.Documents.DeleteAsync(answer._id, answer._rev);
-                    Console.WriteLine(getDeleteResponse);
+                    Console.WriteLine(getDeleteResponse.ToStringDebugVersion());
 
                     return true;
                 }
@@ -152,7 +152,7 @@ namespace SimpleDataAppDataLayer
                     {
                         answer.OrderState = "X";
                         var response = await client.Entities.PutAsync(answer);
-                        Console.WriteLine(response);
+                        Console.WriteLine(response.ToStringDebugVersion());
 
                         return response.IsSuccess;
                     }
