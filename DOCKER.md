@@ -22,7 +22,7 @@ PS> docker pull couchdb
 <br>
 
 Kontainer das erste mal starten:
-- bei den Parametern **COUCHDB_USER** und **COUCHDB_PASSWORD** gewünschten User und Passwort eingeben.
+- bei den Parametern **COUCHDB_USER** und **COUCHDB_PASSWORD** gewünschten User und Passwort eingeben. Falls für den Login andere Angaben wie im folgenden Befehl verwendet werden, müssen diese im Code des Beispiel angepasst werden.
 ```powershell
 PS> docker run -p 5984:5984 -d --name my-couchdb -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin couchdb:latest
 ```
